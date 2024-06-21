@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:payment/string_ext.dart';
 
 import '../res/text_styles.dart';
 
@@ -51,7 +52,7 @@ class PaymentSuccess extends StatelessWidget {
                         borderRadius: BorderRadius.circular(999)),
                     child: Center(
                         child: Text(
-                      "Xác thực bằng mã mở khoá",
+                      "Hoàn thành",
                       style: AppTextStyle.regular.copyWith(color: Colors.white),
                     )),
                   )),
@@ -91,7 +92,7 @@ class PaymentSuccess extends StatelessWidget {
               height: 24,
             ),
             Text(
-              "Thanh toán thành công VND ${amountVND}",
+              "Thanh toán thành công VND ${amountVND.formatBalance()}",
               style: AppTextStyle.boldHeader,
             ),
             SizedBox(

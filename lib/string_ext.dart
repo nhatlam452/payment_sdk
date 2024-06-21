@@ -291,7 +291,7 @@ extension StringExtension on String {
     return formattedDate;
   }
 
-  String formatBalance() {
+  String  formatBalance() {
     final formatter = NumberFormat.decimalPattern();
     return formatter.format(double.parse(this));
   }

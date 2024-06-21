@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
+import 'package:payment/string_ext.dart';
+import 'package:payment/toast_helper.dart';
 
 import '../res/text_styles.dart';
 import 'payment_success.dart';
@@ -42,10 +44,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<void> fetchAccountInfo() async {
     final url =
         'https://tram-connect-wallet.vertiree.com/api/bank-mockup/account/${widget.accountId}';
-
+    print("get acc ${url}");
     try {
       final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
           balance = data['balance'].toString();
@@ -73,9 +75,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return showLoading
-        ? Scaffold(body: Center(child: CircularProgressIndicator()))
+        ? const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()))
         : Scaffold(
-            bottomNavigationBar: Container(
+      backgroundColor: Colors.white,
+
+      bottomNavigationBar: Container(
               height: 128,
               child: Center(
                 child: MaterialButton(
@@ -147,7 +153,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                       "amount": widget.amountVND,
                                       "pinCode": verificationCode,
                                     });
-
+                                    print("body ${jsonDecode(body)}");
                                     try {
                                       await http
                                           .post(
@@ -156,7 +162,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                         body: body,
                                       )
                                           .then((response) {
-                                        if (response.statusCode != 200) {
+                                        if (response.statusCode == 200) {
                                           setState(() {
                                             showLoading = false;
                                           });
@@ -175,14 +181,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                           setState(() {
                                             showLoading = false;
                                           });
+                                          $toastHelper.toastIt(context: context
+                                          ,title: "Giao dịch thát "
+                                          );
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
                                             content: Text(jsonDecode(
                                                     response.body)["message"]
                                                 ["details"][0]["issue"]),
                                           ));
-                                        }
-                                        ;
+                                        };
                                       });
                                     } catch (e) {
                                       setState(() {
@@ -220,7 +228,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               ),
             ),
-            backgroundColor: Colors.white,
             appBar: AppBar(
               leading: Icon(Icons.arrow_back),
             ),
@@ -230,7 +237,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 children: [
                   SizedBox(height: 20.h),
                   Text(
-                    "Bạn đang thanh toán VND ${widget.amountVND}",
+                    "Bạn đang thanh toán VND ${widget.amountVND.formatBalance()}",
                     style: AppTextStyle.boldHeader,
                   ),
                   Expanded(
@@ -284,7 +291,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 Align(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    "VND $balance",
+                                    "VND ${balance.formatBalance()}",
                                     style: AppTextStyle.regular,
                                   ),
                                 ),
