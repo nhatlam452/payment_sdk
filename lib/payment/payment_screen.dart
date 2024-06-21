@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:otp_text_field/otp_field.dart';
+import 'package:otp_text_field/style.dart';
 import '../res/text_styles.dart';
 import 'payment_success.dart';
 
@@ -117,20 +117,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                   style: AppTextStyle.boldHeader,
                                 ),
                                 SizedBox(height: 40),
-                                OtpTextField(
-                                  autoFocus: true,
-                                  alignment: Alignment.centerLeft,
-                                  styles: List.generate(
-                                    6,
-                                    (index) => AppTextStyle.header,
-                                  ),
-                                  numberOfFields: 6,
-                                  borderColor: Colors.blue,
-                                  focusedBorderColor: Colors.blue,
-                                  showFieldAsBox: false,
-                                  borderWidth: 4.0,
-                                  onCodeChanged: (String code) {},
-                                  onSubmit: (String verificationCode) async {
+
+                                OTPTextField(
+                                  length: 6,
+                                  width: MediaQuery.of(context).size.width,
+                                  fieldWidth: 40.w,
+                                  style: const TextStyle(fontSize: 17),
+                                  textFieldAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  fieldStyle: FieldStyle.underline,
+                                  onCompleted: (String verificationCode) async {
                                     Navigator.pop(context);
                                     setState(() {
                                       showLoading = true;
@@ -141,13 +137,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                     const headers = {
                                       'Content-Type': 'application/json'
                                     };
+
                                     var body = jsonEncode({
                                       "fromAccountId": widget.accountId,
                                       "toAccountNo": "4083827099",
                                       "amount": widget.amountVND,
-                                      "pinCode": verificationCode,
+                                      "pinCode": "$verificationCode",
                                     });
-
+                                    // ScaffoldMessenger.of(context)
+                                    //     .showSnackBar(SnackBar(
+                                    //   duration: Duration(hours: 1),
+                                    //   content: Text(
+                                    //       "fromacid ${widget.accountId} toAccountNo 4083827099 amount ${widget.amountVND} pinCode $verificationCode"),
+                                    // ));
                                     try {
                                       await http
                                           .post(
@@ -156,7 +158,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                         body: body,
                                       )
                                           .then((response) {
-                                        if (response.statusCode != 200) {
+                                        if (response.statusCode == 200) {
                                           setState(() {
                                             showLoading = false;
                                           });
@@ -194,7 +196,85 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                       );
                                     }
                                   },
-                                ),
+                                )
+                                // OtpTextField(
+                                //   autoFocus: true,
+                                //   alignment: Alignment.centerLeft,
+                                //   // styles: List.generate(
+                                //   //   6,
+                                //   //   (index) => AppTextStyle.header,
+                                //   // ),
+                                //   numberOfFields: 6,
+                                //   borderColor: Colors.blue,
+                                //   focusedBorderColor: Colors.blue,
+                                //   showFieldAsBox: false,
+                                //   borderWidth: 4.0,
+                                //   onCodeChanged: (String code) {},
+                                //   onSubmit: (String verificationCode) async {
+                                //     Navigator.pop(context);
+                                //     setState(() {
+                                //       showLoading = true;
+                                //     });
+
+                                //     const url =
+                                //         'https://tram-connect-wallet.vertiree.com/api/bank-mockup/account/transfer';
+                                //     const headers = {
+                                //       'Content-Type': 'application/json'
+                                //     };
+                                //     var body = jsonEncode({
+                                //       "fromAccountId": widget.accountId,
+                                //       "toAccountNo": "4083827099",
+                                //       "amount": widget.amountVND,
+                                //       "pinCode": verificationCode,
+                                //     });
+
+                                //     try {
+                                //       await http
+                                //           .post(
+                                //         Uri.parse(url),
+                                //         headers: headers,
+                                //         body: body,
+                                //       )
+                                //           .then((response) {
+                                //         if (response.statusCode != 200) {
+                                //           setState(() {
+                                //             showLoading = false;
+                                //           });
+                                //           Navigator.of(context).push(
+                                //             MaterialPageRoute(
+                                //               builder: (context) =>
+                                //                   PaymentSuccess(
+                                //                 callback: widget.callback,
+                                //                 amountVND: widget.amountVND,
+                                //                 amountChain: widget.amountChain,
+                                //                 chain: widget.chain,
+                                //               ),
+                                //             ),
+                                //           );
+                                //         } else {
+                                //           setState(() {
+                                //             showLoading = false;
+                                //           });
+                                //           ScaffoldMessenger.of(context)
+                                //               .showSnackBar(SnackBar(
+                                //             content: Text(jsonDecode(
+                                //                     response.body)["message"]
+                                //                 ["details"][0]["issue"]),
+                                //           ));
+                                //         }
+                                //         ;
+                                //       });
+                                //     } catch (e) {
+                                //       setState(() {
+                                //         showLoading = false;
+                                //       });
+                                //       ScaffoldMessenger.of(context)
+                                //           .showSnackBar(
+                                //         SnackBar(content: Text("$e")),
+                                //       );
+                                //     }
+                                //   },
+                                // ),
                               ],
                             ),
                           ),
